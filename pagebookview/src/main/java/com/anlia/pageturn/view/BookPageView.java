@@ -147,24 +147,7 @@ public class BookPageView extends View {
         createGradientDrawable();
     }
 
-    private void drawPathAContentBitmap(Bitmap bitmap,Paint pathPaint){
-        Canvas mCanvas = new Canvas(bitmap);
-        //下面开始绘制区域内的内容...
-//        mCanvas.drawPath(getPathDefault(), new Paint());
-       /* mCanvas.drawText("这是在A区域的内容...AAAA", view
-       Width-260, viewHeight-100, textPaint);
-        mCanvas.drawText("这是在A区域的内容...AAAA", 60, viewHeight-100, textPaint);*/
-        //结束绘制区域内的内容...
-    }
 
-    private void drawPathBContentBitmap(Bitmap bitmap,Paint pathPaint){
-        Canvas mCanvas = new Canvas(bitmap);
-        //下面开始绘制区域内的内容...
-//        mCanvas.drawPath(getPathDefault(), new Paint());
-//        mCanvas.drawText("这是在B区域的内容...BBBB", viewWidth-260, viewHeight-100, textPaint);
-
-        // 结束绘制区域内的内容...
-    }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -179,13 +162,13 @@ public class BookPageView extends View {
         a.y = -1;
         pathAContentBitmap = dateCenter.currentPage().copy(Bitmap.Config.ARGB_8888, true);
 
-        drawPathAContentBitmap(pathAContentBitmap, pathAPaint);
+
 
         pathBContentBitmap = dateCenter.nextPage().copy(Bitmap.Config.ARGB_8888, true);
-        drawPathBContentBitmap(pathBContentBitmap, pathBPaint);
+
 
         pathCContentBitmap = dateCenter.currentPage().copy(Bitmap.Config.ARGB_8888, true);
-        drawPathAContentBitmap(pathCContentBitmap, pathCPaint);
+
     }
 
     private int measureSize(int defaultSize,int measureSpec) {
