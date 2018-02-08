@@ -164,44 +164,42 @@ public class TestView extends View {
         canvas.drawLine(-100,0, bitmap.getWidth()+200, 0, paint);
         canvas.drawLine(0,-100, 0, bitmap.getHeight() + 200, paint);
 
-//        canvas.drawBitmap(bitmap, 200, 200, null);
 
-
-
-//        canvas.clipRect(rect);
-
-//        matrix.postScale(1, -1);+
-//        matrix.preTranslate(-bitmap.getWidth()/2, -bitmap.getHeight()/2);
-//        matrix.postTranslate(bitmap.getWidth()/2, bitmap.getHeight()/2);
-
-//        canvas.drawBitmap(bitmap,0, 0, new Paint());
-
-//        matrix.preScale(1f, 1f);
-//        matrix.preTranslate(100, 100);
-
-
-//        matrix.setScale(-1f, 1f);
         canvas.drawCircle(0,0 , 50, paint);
         matrix.reset();
-//        matrix.postTranslate(-bitmap.getWidth()/2, -bitmap.getHeight()/2);
-//        Log.i("jin1", matrix.toString());
         matrix.postScale(-1f, 1f);
         Log.i("jin2", matrix.toString());
         matrix.postTranslate(bitmap.getWidth()/2, bitmap.getHeight()/2);
-//        Log.i("jin3", matrix.toString());
-        matrix.postTranslate(300, 300);
+        matrix.preTranslate(-bitmap.getWidth()/2, -bitmap.getHeight()/2);
         canvas.drawBitmap(bitmap, matrix, paint);
+        Bitmap bitmap2 = Bitmap.createBitmap(this.bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        int withPointsNumber = 200, heightPointsNumber = 200, index = 0;
+        float[] vets = new float[(withPointsNumber + 1) * (heightPointsNumber + 1) * 2];
+        float fx, fy;
+        float width = this.bitmap.getWidth(), heigth = this.bitmap.getHeight();
+        for (int j = 0; j <= heightPointsNumber; j++) {
+            for (int i = 0; i <= withPointsNumber; i++) {
+
+
+                fx = width * i / withPointsNumber ;
+                fy = heigth * j / heightPointsNumber ;
+                if (j == withPointsNumber /2) {
+                    if (i > 20 && i < 60){
+                        fy  += fy + 1* i;
+                    }
+                }
+
+                vets[index * 2] = fx;
+                vets[index * 2 + 1] = fy;
+                index ++;
+            }
+        }
+
+        canvas.drawBitmapMesh(bitmap2, withPointsNumber, heightPointsNumber, vets, 0, null, 0, null);
+
+
+
         canvas.restore();
-
-        /*matrix.reset();
-        matrix.preTranslate(100, 100);
-        canvas.drawBitmap(bitmap, matrix, null);*/
-
-
-//        matrix.reset();
-//        matrix.preTranslate(-100, -100);
-//        canvas.drawBitmap(bitmap, matrix, paint);
-
 
 
 

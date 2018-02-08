@@ -161,12 +161,7 @@ public class BookPageView extends View {
         a.x = -1;
         a.y = -1;
         pathAContentBitmap = dateCenter.currentPage().copy(Bitmap.Config.ARGB_8888, true);
-
-
-
         pathBContentBitmap = dateCenter.nextPage().copy(Bitmap.Config.ARGB_8888, true);
-
-
         pathCContentBitmap = dateCenter.currentPage().copy(Bitmap.Config.ARGB_8888, true);
 
     }
@@ -210,7 +205,6 @@ public class BookPageView extends View {
                 drawPathBContent(canvas,getPathAFromLowerRight());
                 endTrace();
             } else if(f.x == 0 && f.y == viewHeight) {
-                drawPoint(canvas);
                 beginTrace("drawPathA");
                 drawPathAContent(canvas,getPathAFromLowerLeft());
                 endTrace();
@@ -224,7 +218,7 @@ public class BookPageView extends View {
                 endTrace();
 
             } else if (f.x == 0 && f.y == 0) {
-                drawPoint(canvas);
+
                 beginTrace("drawPathA");
                 drawPathAContent(canvas,getPathAFromTopLeft());
                 endTrace();
@@ -240,7 +234,7 @@ public class BookPageView extends View {
         }
 
     }
-    private Paint paint = new Paint();
+    /*private Paint paint = new Paint();
     public void drawPoint(Canvas canvas) {
         paint.setColor(Color.BLACK);
         paint.setTextSize(100);
@@ -268,7 +262,7 @@ public class BookPageView extends View {
         canvas.drawText("k",k.x, k.y, paint);
 
 
-    }
+    }*/
     @TargetApi(18)
     private void beginTrace(String tag){
         Trace.beginSection(tag);
@@ -907,6 +901,8 @@ public class BookPageView extends View {
      * @param pathA
      */
     private void drawPathCContent(Canvas canvas, Path pathA){
+        // 细分值横竖各19个网格
+        int SUB_WIDTH = 200, SUB_HEIGHT = 200;
         canvas.save();
         canvas.clipPath(pathA);
         canvas.clipPath(getPathC(), Region.Op.REVERSE_DIFFERENCE);// 裁剪出C区域不同于A区域的部分
@@ -914,6 +910,9 @@ public class BookPageView extends View {
         float eh = (float) Math.hypot(f.x - e.x,h.y - f.y);
         float sin0 = (f.x - e.x) / eh;
         float cos0 = (h.y - f.y) / eh;
+
+
+
         // 设置翻转和旋转矩阵
         mMatrixArray[0] = -(1-2 * sin0 * sin0);
         mMatrixArray[1] = 2 * sin0 * cos0;
@@ -924,9 +923,65 @@ public class BookPageView extends View {
         mMatrix.setValues(mMatrixArray);// 翻转和旋转
         mMatrix.preTranslate(-e.x, -e.y);// 沿当前XY轴负方向位移得到 矩形A₃B₃C₃D₃
         mMatrix.postTranslate(e.x, e.y);//沿原XY轴方向位移得到 矩形A4 B4 C4 D4
-        canvas.drawBitmap(pathCContentBitmap, mMatrix, null);
-        canvas.clipPath(getPathB());
 
+
+
+        // ab 长度
+        float ab = (float) Math.hypot(a.x - b.x , a.y - b.y -10);
+        // ab延长线到底部长度
+//        float abextend = (float)Math.hypot(a.x - viewWidth, a.y - viewHeight);
+
+        // ak 长度
+        float ak = (float) Math.hypot(a.x - k.x, a.y - k.y);
+//        // ak 的延长线
+//        float akextend = (float) Math.hypot(a.x - viewWidth, a.y);
+
+        float[] vets = new float[(SUB_WIDTH + 1) * (SUB_HEIGHT + 1) * 2];
+        float fx, fy;
+        int index = 0;
+        int width = pathCContentBitmap.getWidth(), height = pathCContentBitmap.getHeight();
+        for (int heightNum = 0; heightNum <= SUB_HEIGHT; heightNum++) {
+            fy = height * heightNum/SUB_HEIGHT ;
+            for (int widthNum = 0; widthNum <= SUB_WIDTH; widthNum++) {
+
+                fx = width * widthNum/SUB_WIDTH ;
+                // 这里是最边上的要进行拉伸
+                if (heightNum == SUB_HEIGHT) {
+                    fx = viewWidth/SUB_WIDTH * widthNum + 2f * heightNum ;
+                    if (viewHeight/SUB_HEIGHT * (heightNum + 1) > ak) {
+                        fx = viewWidth/SUB_WIDTH * widthNum + 2f * heightNum ;
+                    }
+                }
+
+                // 这里是底部的拉伸
+                if (widthNum == SUB_WIDTH) {
+                    fy = viewHeight/SUB_HEIGHT * heightNum + 2f * widthNum;
+                    if ((viewWidth/SUB_WIDTH * (widthNum  + 1)) > ab) {
+                        fy = viewHeight/SUB_HEIGHT * heightNum + 2f * widthNum;
+                    }
+                }
+
+                if (heightNum == 0) {
+                    if (viewHeight/SUB_HEIGHT * (heightNum + 1) > ak) {
+                        fx = viewWidth/SUB_WIDTH * widthNum + 2f * heightNum ;
+                    }
+                }
+
+                // 这里是底部的拉伸
+                if (widthNum == 0) {
+                    fy = viewHeight/SUB_HEIGHT * heightNum + 2f * widthNum;
+                    if ((viewWidth/SUB_WIDTH * (widthNum  + 1)) > ab) {
+                        fy = viewHeight/SUB_HEIGHT * heightNum + 2f * widthNum;
+                    }
+                }
+
+                vets[index*2] = fx;
+                vets[index*2 + 1] = fy;
+                index ++;
+            }
+        }
+        canvas.concat(mMatrix);
+        canvas.drawBitmapMesh(pathCContentBitmap, SUB_WIDTH, SUB_HEIGHT, vets, 0, null, 0, null);
         drawPathCShadow(canvas);
         canvas.restore();
     }
