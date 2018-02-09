@@ -9,7 +9,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.text.TextPaint;
@@ -36,19 +35,20 @@ public class TestView extends View {
     public TestView(Context context) {
         super(context);
         init(null, 0);
-
+        initView();
     }
 
     public TestView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(attrs, 0);
-
+        initView();
 
     }
 
     public TestView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(attrs, defStyle);
+        initView();
     }
 
 
@@ -139,12 +139,66 @@ public class TestView extends View {
         // 用imageview显示出bitmap
 
     }
+    //将图像分成多少格
+    private int WIDTH = 200;
+    private int HEIGHT = 200;
+
+    //交点坐标的个数
+    private int COUNT = (WIDTH + 1) * (HEIGHT + 1);
+
+    //用于保存COUNT的坐标
+    //x0, y0, x1, y1......
+    private float[] verts = new float[COUNT * 2];
+
+    //用于保存原始的坐标
+    private float[] orig = new float[COUNT * 2];
+
+    private Bitmap mBitmap;
+
+    private float K = 1;
+    private void initView() {
+        int index = 0;
+        String s = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath() + "/Camera/IMG_20180206_095106.jpg";
+
+        mBitmap = adjustImage(s);
+        float bmWidth = mBitmap.getWidth();
+        float bmHeight = mBitmap.getHeight();
+
+        for (int i = 0; i < HEIGHT + 1; i++) {
+            float fy = bmHeight * i / HEIGHT;
+            for (int j = 0; j < WIDTH + 1; j++) {
+                float fx = bmWidth * j / WIDTH;
+                //X轴坐标 放在偶数位
+                verts[index * 2 + 0] = fx;
+                orig[index * 2 + 0] = verts[index * 2 + 0];
+                //Y轴坐标 放在奇数位
+                //向下移动200
+                verts[index * 2 + 1] = fy + 200;
+                orig[index * 2 + 1] = verts[index * 2 + 1];
+                index += 1;
+            }
+        }
+    }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        for (int i = 0; i < HEIGHT + 1; i++) {
+            for (int j = 0; j < WIDTH + 1; j++) {
+                verts[(i * (WIDTH + 1) + j) * 2 + 0] += 0;
+                //利用正弦函数的周期性
+                float offsetY = (float) Math.sin((float) j / WIDTH * 2 * Math.PI + K * 2 * Math.PI);
+                verts[(i * (WIDTH + 1) + j) * 2 + 1] = orig[(i * (WIDTH + 1) + j) * 2 + 1] + offsetY * 50;
+            }
+        }
 
-        // TODO: consider storing these as member variables to reduce
+        //平移 旗帜飘扬效果
+        K += 0.1F;
+
+        canvas.drawBitmapMesh(mBitmap, WIDTH, HEIGHT, verts, 0, null, 0, null);
+
+        invalidate();
+       /* // TODO: consider storing these as member variables to reduce
         // allocations per draw cycle.
         int paddingLeft = getPaddingLeft();
         int paddingTop = getPaddingTop();
@@ -185,12 +239,12 @@ public class TestView extends View {
 
 
 
-      /* matrix.postScale(-1f, 1f);
+      *//* matrix.postScale(-1f, 1f);
         Log.i("jin2", matrix.toString());
        matrix.postTranslate(bitmap.getWidth()/2, bitmap.getHeight()/2);
         matrix.preTranslate(-bitmap.getWidth()/2, -bitmap.getHeight()/2);
         canvas.drawBitmap(bitmap, matrix, paint);
-        Bitmap bitmap2 = Bitmap.createBitmap(this.bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);*/
+        Bitmap bitmap2 = Bitmap.createBitmap(this.bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);*//*
         int withPointsNumber = 200, heightPointsNumber = 200, index = 0;
         float[] vets = new float[(withPointsNumber + 1) * (heightPointsNumber + 1) * 2];
         float fx, fy;
@@ -232,7 +286,7 @@ public class TestView extends View {
         canvas.drawCircle(0,50, 50, new Paint());
         canvas.restore();
 
-
+*/
 
 
 //        canvas.drawBitmap(bitmap, matrix, null);

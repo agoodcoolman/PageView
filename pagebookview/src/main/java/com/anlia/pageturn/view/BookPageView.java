@@ -944,7 +944,7 @@ public class BookPageView extends View {
 
         float[] vets = new float[(SUB_WIDTH + 1) * (SUB_HEIGHT + 1) * 2];
         float fx, fy;
-        int index = 0, offset = 900;
+        int index = 0, offset = 10;
 
         int width = pathCContentBitmap.getWidth(), height = pathCContentBitmap.getHeight();
        /* Bitmap bitmap = Bitmap.createBitmap(width + 100, height + 100, Bitmap.Config.ARGB_8888);*/
@@ -970,7 +970,7 @@ public class BookPageView extends View {
                 } else
 
                 if (width == 0) {
-                    fx -= 1f * (offset) ;
+                    fx -= 2f * (offset) ;
                     if (viewHeight/SUB_HEIGHT * (heightNum + 1) > 100) {
 
                     }
