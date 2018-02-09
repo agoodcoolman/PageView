@@ -165,6 +165,8 @@ public class BookPageView extends View {
         pathAContentBitmap = dateCenter.currentPage().copy(Bitmap.Config.ARGB_8888, true);
         pathBContentBitmap = dateCenter.nextPage().copy(Bitmap.Config.ARGB_8888, true);
         pathCContentBitmap = dateCenter.currentPage().copy(Bitmap.Config.ARGB_8888, true);
+        pathCContentBitmap = BitmapUtils.changeBitmapSize(pathCContentBitmap, pathCContentBitmap.getWidth() + 100, pathCContentBitmap.getHeight() + 100);
+
 
     }
 
@@ -903,10 +905,10 @@ public class BookPageView extends View {
      * @param pathA
      */
     private void drawPathCContent(Canvas canvas, Path pathA){
-        // 细分值横竖各19个网格
+        // 细分值横竖各200个网格
         int SUB_WIDTH = 200, SUB_HEIGHT = 200;
 
-        pathCContentBitmap = BitmapUtils.changeBitmapSize(pathCContentBitmap, pathCContentBitmap.getWidth() + 100, pathCContentBitmap.getHeight() + 100);
+
         canvas.save();
         canvas.clipPath(pathA);
         canvas.clipPath(getPathC(), Region.Op.REVERSE_DIFFERENCE);// 裁剪出C区域不同于A区域的部分
@@ -958,21 +960,21 @@ public class BookPageView extends View {
                     if (viewHeight/SUB_HEIGHT * (heightNum + 1) > 100) {
 
                     }
-                }
+                } else
 
                 if (height == SUB_HEIGHT) {
                     fy += 1f * (offset) ;
                     if (viewWidth/SUB_WIDTH * (widthNum + 1) > 100) {
 
                     }
-                }
+                } else
 
                 if (width == 0) {
                     fx -= 1f * (offset) ;
                     if (viewHeight/SUB_HEIGHT * (heightNum + 1) > 100) {
 
                     }
-                }
+                } else
                 if (height == 0) {
                     fy -= 1f * (offset) ;
                     if (viewWidth/SUB_WIDTH * (widthNum + 1) > 100) {
@@ -986,7 +988,7 @@ public class BookPageView extends View {
             }
         }
 
-
+        canvas.drawColor(Color.RED);
         canvas.concat(mMatrix);
         canvas.drawBitmapMesh(pathCContentBitmap, SUB_WIDTH, SUB_HEIGHT, vets, 0, null, 0, null);
         drawPathCShadow(canvas);
