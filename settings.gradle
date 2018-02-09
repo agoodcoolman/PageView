@@ -1,1 +1,3 @@
 include ':testAudio', ':audioLibrary', ':pagebookview'
+
+include ':pageCurl'

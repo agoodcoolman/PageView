@@ -19,6 +19,8 @@ import android.widget.Scroller;
 
 import com.anlia.pageturn.DateCenter;
 import com.anlia.pageturn.bean.MyPoint;
+import com.anlia.pageturn.utils.BitmapUtils;
+
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -903,6 +905,8 @@ public class BookPageView extends View {
     private void drawPathCContent(Canvas canvas, Path pathA){
         // 细分值横竖各19个网格
         int SUB_WIDTH = 200, SUB_HEIGHT = 200;
+
+        pathCContentBitmap = BitmapUtils.changeBitmapSize(pathCContentBitmap, pathCContentBitmap.getWidth() + 100, pathCContentBitmap.getHeight() + 100);
         canvas.save();
         canvas.clipPath(pathA);
         canvas.clipPath(getPathC(), Region.Op.REVERSE_DIFFERENCE);// 裁剪出C区域不同于A区域的部分
@@ -938,40 +942,41 @@ public class BookPageView extends View {
 
         float[] vets = new float[(SUB_WIDTH + 1) * (SUB_HEIGHT + 1) * 2];
         float fx, fy;
-        int index = 0;
+        int index = 0, offset = 900;
+
         int width = pathCContentBitmap.getWidth(), height = pathCContentBitmap.getHeight();
+       /* Bitmap bitmap = Bitmap.createBitmap(width + 100, height + 100, Bitmap.Config.ARGB_8888);*/
+
         for (int heightNum = 0; heightNum <= SUB_HEIGHT; heightNum++) {
             fy = height * heightNum/SUB_HEIGHT ;
             for (int widthNum = 0; widthNum <= SUB_WIDTH; widthNum++) {
 
                 fx = width * widthNum/SUB_WIDTH ;
                 // 这里是最边上的要进行拉伸
-                if (heightNum == SUB_HEIGHT) {
-                    fx = viewWidth/SUB_WIDTH * widthNum + 2f * heightNum ;
-                    if (viewHeight/SUB_HEIGHT * (heightNum + 1) > ak) {
-                        fx = viewWidth/SUB_WIDTH * widthNum + 2f * heightNum ;
+                if (width == SUB_WIDTH) {
+                    fx += 1f * (offset) ;
+                    if (viewHeight/SUB_HEIGHT * (heightNum + 1) > 100) {
+
                     }
                 }
 
-                // 这里是底部的拉伸
-                if (widthNum == SUB_WIDTH) {
-                    fy = viewHeight/SUB_HEIGHT * heightNum + 2f * widthNum;
-                    if ((viewWidth/SUB_WIDTH * (widthNum  + 1)) > ab) {
-                        fy = viewHeight/SUB_HEIGHT * heightNum + 2f * widthNum;
+                if (height == SUB_HEIGHT) {
+                    fy += 1f * (offset) ;
+                    if (viewWidth/SUB_WIDTH * (widthNum + 1) > 100) {
+
                     }
                 }
 
-                if (heightNum == 0) {
-                    if (viewHeight/SUB_HEIGHT * (heightNum + 1) > ak) {
-                        fx = viewWidth/SUB_WIDTH * widthNum + 2f * heightNum ;
+                if (width == 0) {
+                    fx -= 1f * (offset) ;
+                    if (viewHeight/SUB_HEIGHT * (heightNum + 1) > 100) {
+
                     }
                 }
+                if (height == 0) {
+                    fy -= 1f * (offset) ;
+                    if (viewWidth/SUB_WIDTH * (widthNum + 1) > 100) {
 
-                // 这里是底部的拉伸
-                if (widthNum == 0) {
-                    fy = viewHeight/SUB_HEIGHT * heightNum + 2f * widthNum;
-                    if ((viewWidth/SUB_WIDTH * (widthNum  + 1)) > ab) {
-                        fy = viewHeight/SUB_HEIGHT * heightNum + 2f * widthNum;
                     }
                 }
 
@@ -980,6 +985,8 @@ public class BookPageView extends View {
                 index ++;
             }
         }
+
+
         canvas.concat(mMatrix);
         canvas.drawBitmapMesh(pathCContentBitmap, SUB_WIDTH, SUB_HEIGHT, vets, 0, null, 0, null);
         drawPathCShadow(canvas);

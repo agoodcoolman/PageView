@@ -14,7 +14,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -167,12 +166,31 @@ public class TestView extends View {
 
         canvas.drawCircle(0,0 , 50, paint);
         matrix.reset();
-        matrix.postScale(-1f, 1f);
+
+
+        float sin0 = (float) Math.sin(210), cos0 = (float) Math.cos(210);
+        float[] mMatrixArray = { 0, 0, 0, 0, 0, 0, 0, 0, 1.0f };
+        // 设置翻转和旋转矩阵
+        mMatrixArray[0] = -(1-2 * sin0 * sin0);
+        mMatrixArray[1] = 2 * sin0 * cos0;
+        mMatrixArray[3] = 2 * sin0 * cos0;
+        mMatrixArray[4] = 1 - 2 * sin0 * sin0;
+
+        matrix.reset();
+        matrix.setValues(mMatrixArray);// 翻转和旋转
+        matrix.preTranslate(-320, -320);// 沿当前XY轴负方向位移得到 矩形A₃B₃C₃D₃
+        matrix.postTranslate(320, 320);//沿原XY轴方向位移得到 矩形A4 B4 C4 D4
+
+
+
+
+
+      /* matrix.postScale(-1f, 1f);
         Log.i("jin2", matrix.toString());
-        matrix.postTranslate(bitmap.getWidth()/2, bitmap.getHeight()/2);
+       matrix.postTranslate(bitmap.getWidth()/2, bitmap.getHeight()/2);
         matrix.preTranslate(-bitmap.getWidth()/2, -bitmap.getHeight()/2);
         canvas.drawBitmap(bitmap, matrix, paint);
-        Bitmap bitmap2 = Bitmap.createBitmap(this.bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        Bitmap bitmap2 = Bitmap.createBitmap(this.bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);*/
         int withPointsNumber = 200, heightPointsNumber = 200, index = 0;
         float[] vets = new float[(withPointsNumber + 1) * (heightPointsNumber + 1) * 2];
         float fx, fy;
@@ -183,10 +201,23 @@ public class TestView extends View {
 
                 fx = width * i / withPointsNumber ;
                 fy = heigth * j / heightPointsNumber ;
-                if (j == withPointsNumber /2) {
-                    if (i > 20 && i < 60){
-                        fy  += fy + 1* i;
+                if (j == heightPointsNumber) {
+                    fy  +=  1* 50;
+                    if (i > 100 && i < 180){
+
                     }
+                }
+
+                if (i == withPointsNumber) {
+                    fx += 1* 50;
+                }
+
+                if (j == 0) {
+                    fy  -=  1* 50;
+                }
+
+                if (i == 0) {
+                    fx -= 1* 50;
                 }
 
                 vets[index * 2] = fx;
@@ -195,10 +226,10 @@ public class TestView extends View {
             }
         }
 
-        canvas.drawBitmapMesh(bitmap2, withPointsNumber, heightPointsNumber, vets, 0, null, 0, null);
-
-
-
+        canvas.drawBitmap(bitmap, 0, 0 , new Paint());
+        canvas.concat(matrix);
+        canvas.drawBitmapMesh(bitmap, withPointsNumber, heightPointsNumber, vets, 0, null, 0, null);
+        canvas.drawCircle(0,50, 50, new Paint());
         canvas.restore();
 
 

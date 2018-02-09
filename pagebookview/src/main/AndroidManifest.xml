@@ -1,2 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="html2pdf.xyt.com.pagebookview" />
+    package="html2pdf.xyt.com.pagebookview" >
+    <application
+        android:hardwareAccelerated="false">
+    </application>
+</manifest>
