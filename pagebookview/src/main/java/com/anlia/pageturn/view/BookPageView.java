@@ -165,7 +165,7 @@ public class BookPageView extends View {
         pathAContentBitmap = dateCenter.currentPage().copy(Bitmap.Config.ARGB_8888, true);
         pathBContentBitmap = dateCenter.nextPage().copy(Bitmap.Config.ARGB_8888, true);
         pathCContentBitmap = dateCenter.currentPage().copy(Bitmap.Config.ARGB_8888, true);
-        pathCContentBitmap = BitmapUtils.changeBitmapSize(pathCContentBitmap, pathCContentBitmap.getWidth() + 100, pathCContentBitmap.getHeight() + 100);
+//        pathCContentBitmap = BitmapUtils.changeBitmapSize(pathCContentBitmap, pathCContentBitmap.getWidth() + 100, pathCContentBitmap.getHeight() + 100);
 
 
     }
@@ -928,7 +928,7 @@ public class BookPageView extends View {
         mMatrix.reset();
         mMatrix.setValues(mMatrixArray);// 翻转和旋转
         mMatrix.preTranslate(-e.x, -e.y);// 沿当前XY轴负方向位移得到 矩形A₃B₃C₃D₃
-        mMatrix.postTranslate(e.x, e.y);//沿原XY轴方向位移得到 矩形A4 B4 C4 D4
+        mMatrix.postTranslate(e.x , e.y );//沿原XY轴方向位移得到 矩形A4 B4 C4 D4
 
 
 
@@ -944,7 +944,7 @@ public class BookPageView extends View {
 
         float[] vets = new float[(SUB_WIDTH + 1) * (SUB_HEIGHT + 1) * 2];
         float fx, fy;
-        int index = 0, offset = 10;
+        int index = 0, offset = 10, testOffset = 50;
 
         int width = pathCContentBitmap.getWidth(), height = pathCContentBitmap.getHeight();
        /* Bitmap bitmap = Bitmap.createBitmap(width + 100, height + 100, Bitmap.Config.ARGB_8888);*/
@@ -955,28 +955,31 @@ public class BookPageView extends View {
 
                 fx = width * widthNum/SUB_WIDTH ;
                 // 这里是最边上的要进行拉伸
-                if (width == SUB_WIDTH) {
-                    fx += 1f * (offset) ;
+//                fx += 1f * (offset) ;
+//                fy += 1f * (offset);
+                if (width == SUB_WIDTH ) {
+//                    fx += 1f * (offset) ;
+
                     if (viewHeight/SUB_HEIGHT * (heightNum + 1) > 100) {
 
                     }
                 } else
 
-                if (height == SUB_HEIGHT) {
-                    fy += 1f * (offset) ;
+                if (height == SUB_HEIGHT ) {
+//                    fy += 1f * (offset);
                     if (viewWidth/SUB_WIDTH * (widthNum + 1) > 100) {
 
                     }
                 } else
 
                 if (width == 0) {
-                    fx -= 2f * (offset) ;
+//                    fx -= 2f * (offset) ;
                     if (viewHeight/SUB_HEIGHT * (heightNum + 1) > 100) {
 
                     }
                 } else
                 if (height == 0) {
-                    fy -= 1f * (offset) ;
+//                    fy -= 1f * (offset) ;
                     if (viewWidth/SUB_WIDTH * (widthNum + 1) > 100) {
 
                     }
@@ -988,10 +991,24 @@ public class BookPageView extends View {
             }
         }
 
-        canvas.drawColor(Color.RED);
+//        canvas.drawColor(Color.RED);
         canvas.concat(mMatrix);
+
         canvas.drawBitmapMesh(pathCContentBitmap, SUB_WIDTH, SUB_HEIGHT, vets, 0, null, 0, null);
         drawPathCShadow(canvas);
+        Paint paint = new Paint();
+        paint.setColor(Color.YELLOW);
+        canvas.drawCircle(0, pathCContentBitmap.getHeight(), 50, paint);
+        canvas.drawCircle(pathCContentBitmap.getWidth(), pathCContentBitmap.getHeight(), 50, paint);
+        canvas.drawCircle(-pathCContentBitmap.getWidth(), -pathCContentBitmap.getHeight(), 50, paint);
+        canvas.drawCircle(0, 0, 50, paint);
+
+        paint.setColor(Color.RED);
+        paint.setTextSize(20);
+        canvas.drawText("one", 0, pathCContentBitmap.getHeight(), paint);
+        canvas.drawText("two", pathCContentBitmap.getWidth(), pathCContentBitmap.getHeight(), paint);
+        canvas.drawText("three", -pathCContentBitmap.getWidth(), -pathCContentBitmap.getHeight(), paint);
+        canvas.drawText("four", 0, 0, paint);
         canvas.restore();
     }
 

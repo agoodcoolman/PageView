@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.text.TextPaint;
@@ -16,6 +17,8 @@ import android.util.AttributeSet;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
+
+import com.anlia.pageturn.utils.BitmapUtils;
 
 /**
  * TODO: document your custom view class.
@@ -60,6 +63,7 @@ public class TestView extends View {
         Camera camera = new Camera();
 //        camera.rotateX(60);
         camera.getMatrix(matrix);
+
 
         // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(
@@ -183,9 +187,17 @@ public class TestView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        /*Rect rect = new Rect(0, 0, 600, 700);
+        canvas.clipRect(rect);
+
+        canvas.drawBitmap(mBitmap, 0, 0, new Paint());
+
+        Bitmap bitmap = BitmapUtils.changeBitmapSize(mBitmap, mBitmap.getWidth() + 100, mBitmap.getHeight() + 100);
+        canvas.drawBitmap(bitmap, 0, 500, new Paint());
+
         for (int i = 0; i < HEIGHT + 1; i++) {
             for (int j = 0; j < WIDTH + 1; j++) {
-                verts[(i * (WIDTH + 1) + j) * 2 + 0] += 0;
+                verts[(i * (WIDTH + 1) + j) * 2 + 0] += 10;
                 //利用正弦函数的周期性
                 float offsetY = (float) Math.sin((float) j / WIDTH * 2 * Math.PI + K * 2 * Math.PI);
                 verts[(i * (WIDTH + 1) + j) * 2 + 1] = orig[(i * (WIDTH + 1) + j) * 2 + 1] + offsetY * 50;
@@ -197,8 +209,8 @@ public class TestView extends View {
 
         canvas.drawBitmapMesh(mBitmap, WIDTH, HEIGHT, verts, 0, null, 0, null);
 
-        invalidate();
-       /* // TODO: consider storing these as member variables to reduce
+        invalidate();*/
+        // TODO: consider storing these as member variables to reduce
         // allocations per draw cycle.
         int paddingLeft = getPaddingLeft();
         int paddingTop = getPaddingTop();
@@ -209,7 +221,7 @@ public class TestView extends View {
         int contentHeight = getHeight() - paddingTop - paddingBottom;
 
         canvas.save();
-        canvas.translate(500, 500);
+        canvas.translate(500, 800);
         Rect rect = new Rect(100, 100, 700, 700);
         Paint paint = new Paint();
         canvas.drawLine(bitmap.getWidth(), 0, bitmap.getWidth(), 1200, paint);
@@ -218,33 +230,51 @@ public class TestView extends View {
         canvas.drawLine(0,-100, 0, bitmap.getHeight() + 200, paint);
 
 
-        canvas.drawCircle(0,0 , 50, paint);
+
+        matrix.reset();
+
+//
+//        float sin0 = (float) Math.sin(210), cos0 = (float) Math.cos(210);
+//        float[] mMatrixArray = { 0, 0, 0, 0, 0, 0, 0, 0, 1.0f };
+//        // 设置翻转和旋转矩阵
+//        mMatrixArray[0] = -(1-2 * sin0 * sin0);
+//        mMatrixArray[1] = 2 * sin0 * cos0;
+//        mMatrixArray[3] = 2 * sin0 * cos0;
+//        mMatrixArray[4] = 1 - 2 * sin0 * sin0;
+
+        // 初始化 两个点
+        double pointAx = bitmap.getWidth(), pointAy = 10, pointBx = 300, pointBy = bitmap.getHeight();
+        float radiu = (float) ((float) (Math.atan((pointBy - pointAy)/ (pointAx - pointBx))) * 180 / Math.PI);
+//        double pointABX = (pointAx + pointBx)/2, pointABY = (pointAy + pointBy)/2;
+//        double abLength = Math.hypot(pointABX, pointABY);
+//
+//        double duijiaoxianSlope = pointBy/pointAx;
+        // 控制点旋转之后位置，坐标系移动之后的控制点
+//        double fanzhuanzhiqiandingdianSlope = (1/Math.tan(radiu) + duijiaoxianSlope) / (1 - Math.tan(radiu) / Math.tan(radiu));
+//        double duijiaoxianjiaodu = Math.atan(fanzhuanzhiqiandingdianSlope);
+//        double duijiaoxianAy = Math.sin(duijiaoxianjiaodu) * Math.hypot(bitmap.getHeight(), bitmap.getWidth());
+//        double duijiaoxianAx = Math.cos(duijiaoxianjiaodu) * Math.hypot(bitmap.getHeight(), bitmap.getWidth());
+
+
+        float[] pts = new float[]{0, 0, bitmap.getWidth(), 0, 0, bitmap.getHeight(), bitmap.getWidth(), bitmap.getHeight()};
+
+//        double resuleX = Math.sin(radiu) * abLength;
+//        // TODO 这里还是斜率的问题。0 的问题
+//        double resuleY = Math.cos(radiu);
+
+
         matrix.reset();
 
 
-        float sin0 = (float) Math.sin(210), cos0 = (float) Math.cos(210);
-        float[] mMatrixArray = { 0, 0, 0, 0, 0, 0, 0, 0, 1.0f };
-        // 设置翻转和旋转矩阵
-        mMatrixArray[0] = -(1-2 * sin0 * sin0);
-        mMatrixArray[1] = 2 * sin0 * cos0;
-        mMatrixArray[3] = 2 * sin0 * cos0;
-        mMatrixArray[4] = 1 - 2 * sin0 * sin0;
+        matrix.preScale(-1, 1);
+        matrix.preRotate(-radiu -90);
+//        matrix.preTranslate(-(pointAx+ pointBx)/2, -(pointAy+ pointBy)/2);// 沿当前XY轴负方向位移得到 矩形A₃B₃C₃D₃
+//        // 把要显示的点 移动到制定的位置
 
-        matrix.reset();
-        matrix.setValues(mMatrixArray);// 翻转和旋转
-        matrix.preTranslate(-320, -320);// 沿当前XY轴负方向位移得到 矩形A₃B₃C₃D₃
-        matrix.postTranslate(320, 320);//沿原XY轴方向位移得到 矩形A4 B4 C4 D4
-
-
-
-
-
-      *//* matrix.postScale(-1f, 1f);
-        Log.i("jin2", matrix.toString());
-       matrix.postTranslate(bitmap.getWidth()/2, bitmap.getHeight()/2);
-        matrix.preTranslate(-bitmap.getWidth()/2, -bitmap.getHeight()/2);
-        canvas.drawBitmap(bitmap, matrix, paint);
-        Bitmap bitmap2 = Bitmap.createBitmap(this.bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);*//*
+//        double movey = duijiaoxianAy + pointABY;
+//        double movex = Math.abs(duijiaoxianAx - pointABX);
+//        matrix.postTranslate((float) (movex), (float) (movey));
+        matrix.mapPoints(pts);
         int withPointsNumber = 200, heightPointsNumber = 200, index = 0;
         float[] vets = new float[(withPointsNumber + 1) * (heightPointsNumber + 1) * 2];
         float fx, fy;
@@ -255,38 +285,57 @@ public class TestView extends View {
 
                 fx = width * i / withPointsNumber ;
                 fy = heigth * j / heightPointsNumber ;
-                if (j == heightPointsNumber) {
-                    fy  +=  1* 50;
-                    if (i > 100 && i < 180){
-
-                    }
-                }
-
-                if (i == withPointsNumber) {
-                    fx += 1* 50;
-                }
-
-                if (j == 0) {
-                    fy  -=  1* 50;
-                }
-
-                if (i == 0) {
-                    fx -= 1* 50;
-                }
+//                if (j == heightPointsNumber) {
+////                    fy  +=  1* 50;
+//                    if (i > 100 && i < 180){
+//
+//                    }
+//                }
+//
+//                if (i == withPointsNumber) {
+//                    fx += 1* 50;
+//                }
+//
+//                if (j == 0) {
+//                    fy  -=  1* 50;
+//                }
+//
+//                if (i == 0) {
+//                    fx -= 1* 50;
+//                }
 
                 vets[index * 2] = fx;
                 vets[index * 2 + 1] = fy;
                 index ++;
             }
         }
+//        canvas.drawBitmap(bitmap, 0, 0 , new Paint());
+//        canvas.drawCircle((ponitAx+ pointBx)/2, (pointAy+ pointBy)/2, 10, paint);
+        canvas.drawCircle((float) (pointAx + pointBx)/2, (float) (pointAy + pointBy)/2 , 10, paint);
 
-        canvas.drawBitmap(bitmap, 0, 0 , new Paint());
+
+        canvas.drawCircle((float) pts[0], (float) pts[1], 30, paint);
+
+
+        canvas.drawCircle((float) pts[2], (float) pts[3], 30, paint);
+
+
+        canvas.drawCircle((float) pts[4], (float) pts[5], 30, paint);
+
+        paint.setColor(Color.RED);
+        canvas.drawCircle((float) pts[6], (float) pts[7], 30, paint);
+        paint.setColor(Color.BLACK);
+        matrix.postTranslate((float) Math.abs ((pointAx + pointBx)/2) - Math.abs(pts[6]) , (float) (pointAy + pointBy)/2 + Math.abs(pts[7]));
+
         canvas.concat(matrix);
+
+        canvas.drawCircle(0,0 , 40, paint);
+//        canvas.drawLine((float) 0,(float) 0,  (float) pointABX, (float) pointABY, paint);
+//        canvas.drawCircle((float) bitmap.getWidth(), (float) bitmap.getHeight(), 60, paint);
+
         canvas.drawBitmapMesh(bitmap, withPointsNumber, heightPointsNumber, vets, 0, null, 0, null);
-        canvas.drawCircle(0,50, 50, new Paint());
         canvas.restore();
 
-*/
 
 
 //        canvas.drawBitmap(bitmap, matrix, null);
