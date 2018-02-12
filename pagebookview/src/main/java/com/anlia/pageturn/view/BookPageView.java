@@ -165,7 +165,12 @@ public class BookPageView extends View {
         a.y = -1;
         pathAContentBitmap = dateCenter.currentPage().copy(Bitmap.Config.ARGB_8888, true);
         pathBContentBitmap = dateCenter.nextPage().copy(Bitmap.Config.ARGB_8888, true);
+
         pathCContentBitmap = dateCenter.currentPage().copy(Bitmap.Config.ARGB_8888, true);
+
+        pathAContentBitmap = BitmapUtils.changeBitmapSize(pathAContentBitmap, viewWidth, viewHeight);
+        pathBContentBitmap = BitmapUtils.changeBitmapSize(pathBContentBitmap, viewWidth, viewHeight);
+        pathCContentBitmap = BitmapUtils.changeBitmapSize(pathCContentBitmap, viewWidth, viewHeight);
 //        pathCContentBitmap = BitmapUtils.changeBitmapSize(pathCContentBitmap, pathCContentBitmap.getWidth() + 100, pathCContentBitmap.getHeight() + 100);
 
 
@@ -929,46 +934,31 @@ public class BookPageView extends View {
         mMatrix.mapPoints(pts);
 
 
-        Log.i("jin2", "point Controller" + "a.x = " + a.x + ", a.y = " + a.y);
-        Log.i("jin2", "pts pts.x = " + pts[0] + ", pts.y = " + pts[1]);
-        Log.i("jin2", "postTranslate x = " + (Math.abs(a.x) + Math.abs(pts[0])) + ", y = " + (-Math.abs(Math.abs(pts[1]) - Math.abs(a.y))));
-        Log.i("jin2", "radiu  = " + radiu);
+
         mMatrix.postTranslate(a.x - pts[0],a.y- pts[1]);
 
-//        if (Math.abs(radiu) > 45) {
-//            mMatrix.postTranslate(a.x- pts[0], a.y - pts[1]);
-//        } else if (radiu <= 45 && radiu >0) {
-//            mMatrix.postTranslate(Math.abs(a.x) + Math.abs(pts[0]),  Math.abs(Math.abs(pts[1]) + Math.abs(a.y)));
-//
-//        } else if (radiu >=-45) {
-//            mMatrix.postTranslate(a.x - pts[0],a.y- pts[1]);
-//
-//        } else if (radiu < -45) {
-//            mMatrix.postTranslate(a.x - pts[0],a.y- pts[1]);
-//        }
+
         pts = new float[]{f.x, f.y};
         mMatrix.mapPoints(pts);
-
-        Log.i("jin2", "after move pts.x = " + pts[0] + ", pts.y = " + pts[1]);
 
 
         float[] vets = new float[(SUB_WIDTH + 1) * (SUB_HEIGHT + 1) * 2];
         float fx, fy;
         int index = 0, offset = 10, testOffset = 50;
 
-        int width = pathCContentBitmap.getWidth(), height = pathCContentBitmap.getHeight();
-
+        int width = viewWidth, height = viewHeight;
+        float wi = f.x;
         for (int heightNum = 0; heightNum <= SUB_HEIGHT; heightNum++) {
             fy = height * heightNum/SUB_HEIGHT ;
             for (int widthNum = 0; widthNum <= SUB_WIDTH; widthNum++) {
 
                 fx = width * widthNum/SUB_WIDTH ;
+                fy = height * heightNum /SUB_HEIGHT;
                 // 这里是最边上的要进行拉伸
-//                fx += 1f * (offset) ;
 //                fy += 1f * (offset);
                 if (width == SUB_WIDTH ) {
 //                    fx += 1f * (offset) ;
-
+//                    fx += 1f * (offset) ;
                     if (viewHeight/SUB_HEIGHT * (heightNum + 1) > 100) {
 
                     }
@@ -988,8 +978,9 @@ public class BookPageView extends View {
                     }
                 } else
                 if (height == 0) {
-//                    fy -= 1f * (offset) ;
-                    if (viewWidth/SUB_WIDTH * (widthNum + 1) > 100) {
+
+//                    fy  -= 1f * (offset) ;
+                    if (f.x/SUB_WIDTH * (widthNum + 1) > 100) {
 
                     }
                 }
@@ -1001,8 +992,8 @@ public class BookPageView extends View {
         }
 
         canvas.concat(mMatrix);
-
         canvas.drawBitmapMesh(pathCContentBitmap, SUB_WIDTH, SUB_HEIGHT, vets, 0, null, 0, null);
+        canvas.drawCircle(f.x, 0, 40, new Paint());
         drawPathCShadow(canvas);
 //        Paint paint = new Paint();
 //        paint.setColor(Color.YELLOW);
