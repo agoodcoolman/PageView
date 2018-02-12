@@ -12,6 +12,7 @@ import android.graphics.Region;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Trace;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -417,6 +418,7 @@ public class BookPageView extends View {
      */
     public void setTouchPoint(float x, float y, String style){
         MyPoint touchPoint = new MyPoint();
+
         a.x = x;
         a.y = y;
         this.style = style;
@@ -913,24 +915,37 @@ public class BookPageView extends View {
         canvas.clipPath(pathA);
         canvas.clipPath(getPathC(), Region.Op.REVERSE_DIFFERENCE);// 裁剪出C区域不同于A区域的部分
 
-        float eh = (float) Math.hypot(f.x - e.x,h.y - f.y);
+        float eh = (float) Math.hypot((float)(f.x - e.x),(float)(h.y - f.y));
         float sin0 = (f.x - e.x) / eh;
         float cos0 = (h.y - f.y) / eh;
-
-
-
-        // 设置翻转和旋转矩阵
-        mMatrixArray[0] = -(1-2 * sin0 * sin0);
-        mMatrixArray[1] = 2 * sin0 * cos0;
-        mMatrixArray[3] = 2 * sin0 * cos0;
-        mMatrixArray[4] = 1 - 2 * sin0 * sin0;
+        double radiu = Math.atan((float)Math.abs(h.y - f.y) / (float)(f.x - e.x)) * 180 / Math.PI;
+//        double radiu = Math.asin((float)(f.x - e.x) / eh)* 180 / Math.PI;
 
         mMatrix.reset();
-        mMatrix.setValues(mMatrixArray);// 翻转和旋转
-        mMatrix.preTranslate(-e.x, -e.y);// 沿当前XY轴负方向位移得到 矩形A₃B₃C₃D₃
-        mMatrix.postTranslate(e.x , e.y );//沿原XY轴方向位移得到 矩形A4 B4 C4 D4
+//        mMatrix.setValues(mMatrixArray);// 翻转和旋转
+//        mMatrix.preTranslate(-e.x, -e.y);// 沿当前XY轴负方向位移得到 矩形A₃B₃C₃D₃
+//        mMatrix.postTranslate(e.x , e.y );//沿原XY轴方向位移得到 矩形A4 B4 C4 D4
+        mMatrix.preScale(-1, 1);
+        mMatrix.preRotate(-(float) ((2 * (90 - radiu))));
+
+        float[] pts = new float[]{f.x, f.y};
+        mMatrix.mapPoints(pts);
 
 
+        Log.i("jin2", "point Controller" + "a.x = " + a.x + ", a.y = " + a.y);
+//        Log.i("jin2", "pts pts.x = " + pts[0] + ", pts.y = " + pts[1]);
+//        Log.i("jin2", "postTranslate x = " + (Math.abs(a.x) + Math.abs(pts[0])) + ", y = " + (-Math.abs(Math.abs(pts[1]) - Math.abs(a.y))));
+//        Log.i("jin2", "radiu  = " + radiu);
+        if (radiu > 45) {
+            mMatrix.postTranslate(a.x- pts[0], a.y - pts[1]);
+        } else if (radiu <= 45) {
+            mMatrix.postTranslate(Math.abs(a.x) + Math.abs(pts[0]),  Math.abs(Math.abs(pts[1]) + Math.abs(a.y)));
+
+        }
+        pts = new float[]{f.x, f.y};
+        mMatrix.mapPoints(pts);
+
+        Log.i("jin2", "after move pts.x = " + pts[0] + ", pts.y = " + pts[1]);
 
         // ab 长度
         float ab = (float) Math.hypot(a.x - b.x , a.y - b.y -10);
@@ -947,7 +962,6 @@ public class BookPageView extends View {
         int index = 0, offset = 10, testOffset = 50;
 
         int width = pathCContentBitmap.getWidth(), height = pathCContentBitmap.getHeight();
-       /* Bitmap bitmap = Bitmap.createBitmap(width + 100, height + 100, Bitmap.Config.ARGB_8888);*/
 
         for (int heightNum = 0; heightNum <= SUB_HEIGHT; heightNum++) {
             fy = height * heightNum/SUB_HEIGHT ;
@@ -991,24 +1005,23 @@ public class BookPageView extends View {
             }
         }
 
-//        canvas.drawColor(Color.RED);
         canvas.concat(mMatrix);
 
         canvas.drawBitmapMesh(pathCContentBitmap, SUB_WIDTH, SUB_HEIGHT, vets, 0, null, 0, null);
         drawPathCShadow(canvas);
-        Paint paint = new Paint();
-        paint.setColor(Color.YELLOW);
-        canvas.drawCircle(0, pathCContentBitmap.getHeight(), 50, paint);
-        canvas.drawCircle(pathCContentBitmap.getWidth(), pathCContentBitmap.getHeight(), 50, paint);
-        canvas.drawCircle(-pathCContentBitmap.getWidth(), -pathCContentBitmap.getHeight(), 50, paint);
-        canvas.drawCircle(0, 0, 50, paint);
-
-        paint.setColor(Color.RED);
-        paint.setTextSize(20);
-        canvas.drawText("one", 0, pathCContentBitmap.getHeight(), paint);
-        canvas.drawText("two", pathCContentBitmap.getWidth(), pathCContentBitmap.getHeight(), paint);
-        canvas.drawText("three", -pathCContentBitmap.getWidth(), -pathCContentBitmap.getHeight(), paint);
-        canvas.drawText("four", 0, 0, paint);
+//        Paint paint = new Paint();
+//        paint.setColor(Color.YELLOW);
+//        canvas.drawCircle(0, pathCContentBitmap.getHeight(), 50, paint);
+//        canvas.drawCircle(pathCContentBitmap.getWidth(), pathCContentBitmap.getHeight(), 50, paint);
+//        canvas.drawCircle(-pathCContentBitmap.getWidth(), -pathCContentBitmap.getHeight(), 50, paint);
+//        canvas.drawCircle(0, 0, 50, paint);
+//
+//        paint.setColor(Color.RED);
+//        paint.setTextSize(20);
+//        canvas.drawText("one", 0, pathCContentBitmap.getHeight(), paint);
+//        canvas.drawText("two", pathCContentBitmap.getWidth(), pathCContentBitmap.getHeight(), paint);
+//        canvas.drawText("three", -pathCContentBitmap.getWidth(), -pathCContentBitmap.getHeight(), paint);
+//        canvas.drawText("four", 0, 0, paint);
         canvas.restore();
     }
 
