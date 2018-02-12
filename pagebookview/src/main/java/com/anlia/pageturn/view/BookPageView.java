@@ -915,47 +915,42 @@ public class BookPageView extends View {
         canvas.clipPath(pathA);
         canvas.clipPath(getPathC(), Region.Op.REVERSE_DIFFERENCE);// 裁剪出C区域不同于A区域的部分
 
-        float eh = (float) Math.hypot((float)(f.x - e.x),(float)(h.y - f.y));
-        float sin0 = (f.x - e.x) / eh;
-        float cos0 = (h.y - f.y) / eh;
-        double radiu = Math.atan((float)Math.abs(h.y - f.y) / (float)(f.x - e.x)) * 180 / Math.PI;
-//        double radiu = Math.asin((float)(f.x - e.x) / eh)* 180 / Math.PI;
+        double radiu = Math.atan((float)(f.y - h.y ) / (float)(f.x - e.x)) * 180 / Math.PI;
 
         mMatrix.reset();
-//        mMatrix.setValues(mMatrixArray);// 翻转和旋转
-//        mMatrix.preTranslate(-e.x, -e.y);// 沿当前XY轴负方向位移得到 矩形A₃B₃C₃D₃
-//        mMatrix.postTranslate(e.x , e.y );//沿原XY轴方向位移得到 矩形A4 B4 C4 D4
         mMatrix.preScale(-1, 1);
-        mMatrix.preRotate(-(float) ((2 * (90 - radiu))));
+        if (radiu < 0) {
+            mMatrix.preRotate((float) ((180 + 2 * radiu)));
+        } else {
+            mMatrix.preRotate(-(float) ((180 - 2 * radiu)));
+        }
 
         float[] pts = new float[]{f.x, f.y};
         mMatrix.mapPoints(pts);
 
 
         Log.i("jin2", "point Controller" + "a.x = " + a.x + ", a.y = " + a.y);
-//        Log.i("jin2", "pts pts.x = " + pts[0] + ", pts.y = " + pts[1]);
-//        Log.i("jin2", "postTranslate x = " + (Math.abs(a.x) + Math.abs(pts[0])) + ", y = " + (-Math.abs(Math.abs(pts[1]) - Math.abs(a.y))));
-//        Log.i("jin2", "radiu  = " + radiu);
-        if (radiu > 45) {
-            mMatrix.postTranslate(a.x- pts[0], a.y - pts[1]);
-        } else if (radiu <= 45) {
-            mMatrix.postTranslate(Math.abs(a.x) + Math.abs(pts[0]),  Math.abs(Math.abs(pts[1]) + Math.abs(a.y)));
+        Log.i("jin2", "pts pts.x = " + pts[0] + ", pts.y = " + pts[1]);
+        Log.i("jin2", "postTranslate x = " + (Math.abs(a.x) + Math.abs(pts[0])) + ", y = " + (-Math.abs(Math.abs(pts[1]) - Math.abs(a.y))));
+        Log.i("jin2", "radiu  = " + radiu);
+        mMatrix.postTranslate(a.x - pts[0],a.y- pts[1]);
 
-        }
+//        if (Math.abs(radiu) > 45) {
+//            mMatrix.postTranslate(a.x- pts[0], a.y - pts[1]);
+//        } else if (radiu <= 45 && radiu >0) {
+//            mMatrix.postTranslate(Math.abs(a.x) + Math.abs(pts[0]),  Math.abs(Math.abs(pts[1]) + Math.abs(a.y)));
+//
+//        } else if (radiu >=-45) {
+//            mMatrix.postTranslate(a.x - pts[0],a.y- pts[1]);
+//
+//        } else if (radiu < -45) {
+//            mMatrix.postTranslate(a.x - pts[0],a.y- pts[1]);
+//        }
         pts = new float[]{f.x, f.y};
         mMatrix.mapPoints(pts);
 
         Log.i("jin2", "after move pts.x = " + pts[0] + ", pts.y = " + pts[1]);
 
-        // ab 长度
-        float ab = (float) Math.hypot(a.x - b.x , a.y - b.y -10);
-        // ab延长线到底部长度
-//        float abextend = (float)Math.hypot(a.x - viewWidth, a.y - viewHeight);
-
-        // ak 长度
-        float ak = (float) Math.hypot(a.x - k.x, a.y - k.y);
-//        // ak 的延长线
-//        float akextend = (float) Math.hypot(a.x - viewWidth, a.y);
 
         float[] vets = new float[(SUB_WIDTH + 1) * (SUB_HEIGHT + 1) * 2];
         float fx, fy;
