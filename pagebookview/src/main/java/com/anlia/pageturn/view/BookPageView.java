@@ -168,10 +168,10 @@ public class BookPageView extends View {
 
         pathCContentBitmap = dateCenter.currentPage().copy(Bitmap.Config.ARGB_8888, true);
 
+        // 调整图片的大小
         pathAContentBitmap = BitmapUtils.changeBitmapSize(pathAContentBitmap, viewWidth, viewHeight);
         pathBContentBitmap = BitmapUtils.changeBitmapSize(pathBContentBitmap, viewWidth, viewHeight);
-        pathCContentBitmap = BitmapUtils.changeBitmapSize(pathCContentBitmap, viewWidth, viewHeight);
-//        pathCContentBitmap = BitmapUtils.changeBitmapSize(pathCContentBitmap, pathCContentBitmap.getWidth() + 100, pathCContentBitmap.getHeight() + 100);
+        pathCContentBitmap = BitmapUtils.changeBitmapSize(pathCContentBitmap, viewWidth+100, viewHeight+100);
 
 
     }
@@ -911,7 +911,8 @@ public class BookPageView extends View {
      * @param canvas
      * @param pathA
      */
-    private void drawPathCContent(Canvas canvas, Path pathA){
+    private void
+    drawPathCContent(Canvas canvas, Path pathA){
         // 细分值横竖各200个网格
         int SUB_WIDTH = 200, SUB_HEIGHT = 200;
 
@@ -944,44 +945,35 @@ public class BookPageView extends View {
 
         float[] vets = new float[(SUB_WIDTH + 1) * (SUB_HEIGHT + 1) * 2];
         float fx, fy;
-        int index = 0, offset = 10, testOffset = 50;
+        int index = 0, offset = 10;
+        double adLength = Math.hypot(a.x - d.x, a.y - d.y);
+        double aiLength = Math.hypot(a.x - i.x, a.y - i.y);
 
         int width = viewWidth, height = viewHeight;
-        float wi = f.x;
         for (int heightNum = 0; heightNum <= SUB_HEIGHT; heightNum++) {
             fy = height * heightNum/SUB_HEIGHT ;
             for (int widthNum = 0; widthNum <= SUB_WIDTH; widthNum++) {
 
                 fx = width * widthNum/SUB_WIDTH ;
-                fy = height * heightNum /SUB_HEIGHT;
                 // 这里是最边上的要进行拉伸
-//                fy += 1f * (offset);
-                if (width == SUB_WIDTH ) {
-//                    fx += 1f * (offset) ;
-//                    fx += 1f * (offset) ;
-                    if (viewHeight/SUB_HEIGHT * (heightNum + 1) > 100) {
+//
+                if (widthNum == SUB_WIDTH - 1) {
+                    fx += 10f * (offset);
+                    if (fy > aiLength) {
+                    }
+                } else if (heightNum == SUB_HEIGHT ) {
+                    fy += 1f * (offset);
+                    if (fx > adLength) {
+                    }
+
+                } else if (widthNum == 1) {
+                    fx -= 10f * (offset);
+                    if (fy > aiLength) {
 
                     }
-                } else
-
-                if (height == SUB_HEIGHT ) {
-//                    fy += 1f * (offset);
-                    if (viewWidth/SUB_WIDTH * (widthNum + 1) > 100) {
-
-                    }
-                } else
-
-                if (width == 0) {
-//                    fx -= 2f * (offset) ;
-                    if (viewHeight/SUB_HEIGHT * (heightNum + 1) > 100) {
-
-                    }
-                } else
-                if (height == 0) {
-
-//                    fy  -= 1f * (offset) ;
-                    if (f.x/SUB_WIDTH * (widthNum + 1) > 100) {
-
+                } else if (heightNum == 0) {
+                    fy -= 1f * (offset);
+                    if (fx > adLength) {
                     }
                 }
 
@@ -993,7 +985,7 @@ public class BookPageView extends View {
 
         canvas.concat(mMatrix);
         canvas.drawBitmapMesh(pathCContentBitmap, SUB_WIDTH, SUB_HEIGHT, vets, 0, null, 0, null);
-        canvas.drawCircle(f.x, 0, 40, new Paint());
+        canvas.drawCircle(f.x, 30, 40, new Paint());
         drawPathCShadow(canvas);
 //        Paint paint = new Paint();
 //        paint.setColor(Color.YELLOW);
