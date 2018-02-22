@@ -82,9 +82,8 @@ public class BookPageView extends View {
     private GradientDrawable drawableCTopRight;
     private GradientDrawable drawableCLowerRight;
 
-    private Bitmap pathAContentBitmap;//A区域内容Bitmap
-    private Bitmap pathBContentBitmap;//B区域内容Bitmap
-    private Bitmap pathCContentBitmap;//C区域内容Bitmap
+    private Bitmap pathAContentBitmap, pathBContentBitmap, pathCContentBitmap, pathLastBContentBitmap;//A区域内容Bitmap,B区域内容Bitmap,C区域内容Bitmap,向前翻上一页的图
+
     private DateCenter dateCenter;
 
     public BookPageView(Context context, @Nullable AttributeSet attrs) {
@@ -170,13 +169,12 @@ public class BookPageView extends View {
         viewHeight = height;
         a.x = -1;
         a.y = -1;
+        // 初始化图片资源
         pathAContentBitmap = dateCenter.currentPage();
         pathBContentBitmap = dateCenter.nextPage();
-
+        pathLastBContentBitmap = dateCenter.prePage();
         pathCContentBitmap = dateCenter.currentPage();
 
-        // 调整图片的大小
-//        up
 
     }
 
@@ -292,6 +290,9 @@ public class BookPageView extends View {
                 setTouchPoint(x,y,STYLE_RIGHT);
             }
         } else if (isScrolling) {
+            // 进入到这里
+            // 说明 利用Scroll开始了滚动的操作
+            // 这里最后一次计算之后，然后再执行onDraw一次之后，才能更换 bitmap里面的图片。不然会出现图片跳现的问题。
             isScrolling = false;
             isLastScrolling = true;
         }
@@ -350,18 +351,13 @@ public class BookPageView extends View {
                         startCancelAnimFromRigth();
                     } else {
                         finishAnimRigth();
-//                        dateCenter.pulsing();
-                        // 滚动完成
-//                        updateDateCenterBitmap();
                     }
                 } else if (style.contains("LEFT")) {
                     if(event.getX() < defaultWidth * 0.2) {
                         startCancelAnimFromLeft();
                     } else {
                         finishAnimLeft();
-//                        dateCenter.minusing();
-                        // 滚动完成
-//                        updateDateCenterBitmap();
+
 
                     }
                 }
@@ -374,17 +370,12 @@ public class BookPageView extends View {
      * 更新数据中心的图片的数据
      */
     private void updateDateCenterBitmap() {
-
+        pathLastBContentBitmap = dateCenter.prePage();
         pathAContentBitmap = dateCenter.currentPage();
         pathBContentBitmap = dateCenter.nextPage();
         pathCContentBitmap = dateCenter.currentPage();
 
 
-
-        // 调整图片的大小
-//        pathAContentBitmap = BitmapUtils.changeBitmapSize(pathAContentBitmap, viewWidth, viewHeight);
-//        pathBContentBitmap = BitmapUtils.changeBitmapSize(pathBContentBitmap, viewWidth, viewHeight);
-//        pathCContentBitmap = BitmapUtils.changeBitmapSize(pathCContentBitmap, viewWidth+100, viewHeight+100);
 
     }
 
@@ -859,11 +850,17 @@ public class BookPageView extends View {
         canvas.clipPath(pathA);//裁剪出A区域
         canvas.clipPath(getPathC(),Region.Op.UNION);// 裁剪出A和C区域的全集
         canvas.clipPath(getPathB(), Region.Op.REVERSE_DIFFERENCE);//裁剪出B区域中不同于与AC区域的部分
-        canvas.drawBitmap(pathBContentBitmap, 0, 0, null);
+        if (style.contains("LEFT")) {
+            canvas.drawBitmap(pathLastBContentBitmap, 0, 0, null);
+        } else if (style.contains("RIGHT")) {
+            canvas.drawBitmap(pathBContentBitmap, 0, 0, null);
+
+        }
 
         drawPathBShadow(canvas);
         canvas.restore();
     }
+
 
     /**
      * 绘制B区域阴影，阴影左深右浅
