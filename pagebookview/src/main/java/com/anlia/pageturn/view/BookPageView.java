@@ -13,6 +13,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Trace;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -20,6 +21,7 @@ import android.widget.Scroller;
 
 import com.anlia.pageturn.DateCenter;
 import com.anlia.pageturn.bean.MyPoint;
+import com.anlia.pageturn.inter.BookPageCallable;
 import com.anlia.pageturn.utils.BitmapUtils;
 
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +40,7 @@ public class BookPageView extends View {
     private Paint pathCPaint;//绘制C区域画笔
     private Paint textPaint;//绘制文字画笔
     private Paint pathCContentPaint;//绘制C区域内容画笔
-
+    private BookPageCallable pageCallable;
     private MyPoint a,f,g,e,h,c,j,b,k,d,i;
     private Path pathA;
     private Path pathB;
@@ -88,6 +90,11 @@ public class BookPageView extends View {
     public BookPageView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context,attrs);
+    }
+
+
+    public void setPageCallable(BookPageCallable pageCallable) {
+        this.pageCallable = pageCallable;
     }
 
     private void init(Context context, @Nullable AttributeSet attrs){
@@ -143,7 +150,7 @@ public class BookPageView extends View {
         pathB = new Path();
         pathC = new Path();
 
-        style = STYLE_LOWER_RIGHT;
+        style = "";
         mScroller = new Scroller(context,new LinearInterpolator());
         mMatrix = new Matrix();
 
@@ -163,16 +170,13 @@ public class BookPageView extends View {
         viewHeight = height;
         a.x = -1;
         a.y = -1;
-        pathAContentBitmap = dateCenter.currentPage().copy(Bitmap.Config.ARGB_8888, true);
-        pathBContentBitmap = dateCenter.nextPage().copy(Bitmap.Config.ARGB_8888, true);
+        pathAContentBitmap = dateCenter.currentPage();
+        pathBContentBitmap = dateCenter.nextPage();
 
-        pathCContentBitmap = dateCenter.currentPage().copy(Bitmap.Config.ARGB_8888, true);
+        pathCContentBitmap = dateCenter.currentPage();
 
         // 调整图片的大小
-        pathAContentBitmap = BitmapUtils.changeBitmapSize(pathAContentBitmap, viewWidth, viewHeight);
-        pathBContentBitmap = BitmapUtils.changeBitmapSize(pathBContentBitmap, viewWidth, viewHeight);
-        pathCContentBitmap = BitmapUtils.changeBitmapSize(pathCContentBitmap, viewWidth+100, viewHeight+100);
-
+//        up
 
     }
 
@@ -193,7 +197,7 @@ public class BookPageView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if(a.x==-1 && a.y==-1){
+        if(a.x == -1 && a.y == -1){
             drawPathAContent(canvas, getPathDefault());
         }else {
             if(f.x==viewWidth && f.y==0){
@@ -212,7 +216,7 @@ public class BookPageView extends View {
                 endTrace();
 
                 beginTrace("drawPathB");
-                drawPathBContent(canvas,getPathAFromLowerRight());
+                drawPathBContent(canvas, getPathAFromLowerRight());
                 endTrace();
             } else if(f.x == 0 && f.y == viewHeight) {
                 beginTrace("drawPathA");
@@ -242,37 +246,19 @@ public class BookPageView extends View {
                 endTrace();
             }
         }
+        if (isLastScrolling) {
+            isLastScrolling = false;
+            if (style.contains("LEFT")) {
+                dateCenter.minusing();
+            } else if (style.contains("RIGHT")) {
+                dateCenter.pulsing();
+            }
+            updateDateCenterBitmap();
+        }
+
 
     }
-    /*private Paint paint = new Paint();
-    public void drawPoint(Canvas canvas) {
-        paint.setColor(Color.BLACK);
-        paint.setTextSize(100);
-        canvas.drawPoint(f.x, f.y, paint);
-        canvas.drawText("f",f.x, f.y, paint);
-        canvas.drawPoint(a.x, a.y, paint);
-        canvas.drawText("a",a.x, a.y, paint);
-        canvas.drawPoint(b.x, b.y, paint);
-        canvas.drawText("b",b.x, b.y, paint);
-        canvas.drawPoint(c.x, c.y, paint);
-        canvas.drawText("c",c.x, c.y, paint);
-        canvas.drawPoint(d.x, d.y, paint);
-        canvas.drawText("d",d.x, d.y, paint);
-        canvas.drawPoint(e.x, e.y, paint);
-        canvas.drawText("e",e.x, e.y, paint);
-        canvas.drawPoint(j.x, j.y, paint);
-        canvas.drawText("j",j.x, j.y, paint);
-        canvas.drawPoint(h.x, h.y, paint);
-        canvas.drawText("h",h.x, h.y, paint);
-        canvas.drawPoint(i.x, i.y, paint);
-        canvas.drawText("i",i.x, i.y, paint);
-        canvas.drawPoint(j.x, j.y, paint);
-        canvas.drawText("j",j.x, j.y, paint);
-        canvas.drawPoint(k.x, k.y, paint);
-        canvas.drawText("k",k.x, k.y, paint);
 
-
-    }*/
     @TargetApi(18)
     private void beginTrace(String tag){
         Trace.beginSection(tag);
@@ -283,9 +269,13 @@ public class BookPageView extends View {
         Trace.endSection();
     }
 
+    private boolean isScrolling = false;
+    private boolean isLastScrolling = false;
     @Override
     public void computeScroll() {
+
         if (mScroller.computeScrollOffset()) {
+            isScrolling = true;
             float x = mScroller.getCurrX();
             float y = mScroller.getCurrY();
             if(style.equals(STYLE_TOP_RIGHT)){
@@ -301,12 +291,16 @@ public class BookPageView extends View {
             } else if(style.equals(STYLE_RIGHT)) {
                 setTouchPoint(x,y,STYLE_RIGHT);
             }
+        } else if (isScrolling) {
+            isScrolling = false;
+            isLastScrolling = true;
         }
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         super.onTouchEvent(event);
+
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
                 float x = event.getX();
@@ -319,44 +313,81 @@ public class BookPageView extends View {
                     } else if (y>=viewHeight*2/3) { // xia
                         style = STYLE_LOWER_LEFT;
                     }
+                    if (dateCenter.hasPrePage()) {
+                        setTouchPoint(x,y,style);
 
-                    setTouchPoint(x,y,style);
+                    } else {
+                        // 不进行拦截
+                        return false;
+
+                    }
 
                 }else if(x>viewWidth*2/3 ){//右
                     if (y<=viewHeight/3) { // shang
                         style = STYLE_TOP_RIGHT;
-                        setTouchPoint(x,y,style);
                     } else if (y>viewHeight/3 && y<=viewHeight*2/3) { // zhong
                         style = STYLE_RIGHT;
-                        setTouchPoint(x,y,style);
                     } else if(y>viewHeight*2/3) {
                         style = STYLE_LOWER_RIGHT;
-                        setTouchPoint(x,y,style);
+
                     }
+                    if (dateCenter.hasNextPage()) {
+                        setTouchPoint(x,y,style);
+
+                    } else {
+                        // 不进行拦截
+                        return false;
+                    }
+
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
                 setTouchPoint(event.getX(),event.getY(),style);
                 break;
             case MotionEvent.ACTION_UP:
-
                 if (style.contains("RIGHT")) {
                     if(event.getX() > defaultWidth * 0.8) {
                         startCancelAnimFromRigth();
                     } else {
                         finishAnimRigth();
+//                        dateCenter.pulsing();
+                        // 滚动完成
+//                        updateDateCenterBitmap();
                     }
                 } else if (style.contains("LEFT")) {
                     if(event.getX() < defaultWidth * 0.2) {
                         startCancelAnimFromLeft();
                     } else {
                         finishAnimLeft();
+//                        dateCenter.minusing();
+                        // 滚动完成
+//                        updateDateCenterBitmap();
+
                     }
                 }
                 break;
         }
         return true;
     }
+
+    /**
+     * 更新数据中心的图片的数据
+     */
+    private void updateDateCenterBitmap() {
+
+        pathAContentBitmap = dateCenter.currentPage();
+        pathBContentBitmap = dateCenter.nextPage();
+        pathCContentBitmap = dateCenter.currentPage();
+
+
+
+        // 调整图片的大小
+//        pathAContentBitmap = BitmapUtils.changeBitmapSize(pathAContentBitmap, viewWidth, viewHeight);
+//        pathBContentBitmap = BitmapUtils.changeBitmapSize(pathBContentBitmap, viewWidth, viewHeight);
+//        pathCContentBitmap = BitmapUtils.changeBitmapSize(pathCContentBitmap, viewWidth+100, viewHeight+100);
+
+    }
+
 
     /**
      * 结束翻页 结尾的动画
@@ -822,6 +853,8 @@ public class BookPageView extends View {
      * @param pathA
      */
     private void drawPathBContent(Canvas canvas, Path pathA){
+
+
         canvas.save();
         canvas.clipPath(pathA);//裁剪出A区域
         canvas.clipPath(getPathC(),Region.Op.UNION);// 裁剪出A和C区域的全集
@@ -911,11 +944,10 @@ public class BookPageView extends View {
      * @param canvas
      * @param pathA
      */
-    private void
-    drawPathCContent(Canvas canvas, Path pathA){
+    private void drawPathCContent(Canvas canvas, Path pathA){
+
         // 细分值横竖各200个网格
         int SUB_WIDTH = 200, SUB_HEIGHT = 200;
-
 
         canvas.save();
         canvas.clipPath(pathA);
@@ -933,7 +965,6 @@ public class BookPageView extends View {
 
         float[] pts = new float[]{f.x, f.y};
         mMatrix.mapPoints(pts);
-
 
 
         mMatrix.postTranslate(a.x - pts[0],a.y- pts[1]);
@@ -985,21 +1016,8 @@ public class BookPageView extends View {
 
         canvas.concat(mMatrix);
         canvas.drawBitmapMesh(pathCContentBitmap, SUB_WIDTH, SUB_HEIGHT, vets, 0, null, 0, null);
-        canvas.drawCircle(f.x, 30, 40, new Paint());
         drawPathCShadow(canvas);
-//        Paint paint = new Paint();
-//        paint.setColor(Color.YELLOW);
-//        canvas.drawCircle(0, pathCContentBitmap.getHeight(), 50, paint);
-//        canvas.drawCircle(pathCContentBitmap.getWidth(), pathCContentBitmap.getHeight(), 50, paint);
-//        canvas.drawCircle(-pathCContentBitmap.getWidth(), -pathCContentBitmap.getHeight(), 50, paint);
-//        canvas.drawCircle(0, 0, 50, paint);
-//
-//        paint.setColor(Color.RED);
-//        paint.setTextSize(20);
-//        canvas.drawText("one", 0, pathCContentBitmap.getHeight(), paint);
-//        canvas.drawText("two", pathCContentBitmap.getWidth(), pathCContentBitmap.getHeight(), paint);
-//        canvas.drawText("three", -pathCContentBitmap.getWidth(), -pathCContentBitmap.getHeight(), paint);
-//        canvas.drawText("four", 0, 0, paint);
+
         canvas.restore();
     }
 

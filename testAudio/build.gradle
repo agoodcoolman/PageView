@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.testaudio"
-        minSdkVersion 8
+        minSdkVersion 12
         targetSdkVersion 21
     }
 

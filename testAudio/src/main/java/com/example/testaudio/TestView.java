@@ -257,24 +257,6 @@ public class TestView extends View {
 
                 fx = width * i / withPointsNumber ;
                 fy = heigth * j / heightPointsNumber ;
-//                if (j == heightPointsNumber) {
-////                    fy  +=  1* 50;
-//                    if (i > 100 && i < 180){
-//
-//                    }
-//                }
-//
-//                if (i == withPointsNumber) {
-//                    fx += 1* 50;
-//                }
-//
-//                if (j == 0) {
-//                    fy  -=  1* 50;
-//                }
-//
-//                if (i == 0) {
-//                    fx -= 1* 50;
-//                }
 
                 vets[index * 2] = fx;
                 vets[index * 2 + 1] = fy;
@@ -293,27 +275,11 @@ public class TestView extends View {
         canvas.concat(matrix);
 
         canvas.drawCircle(0,0 , 40, paint);
-//        canvas.drawLine((float) 0,(float) 0,  (float) pointABX, (float) pointABY, paint);
-//        canvas.drawCircle((float) bitmap.getWidth(), (float) bitmap.getHeight(), 60, paint);
 
         canvas.drawBitmapMesh(bitmap, withPointsNumber, heightPointsNumber, vets, 0, null, 0, null);
         canvas.restore();
 
 
-
-//        canvas.drawBitmap(bitmap, matrix, null);
-        // Draw the text.
-        /*canvas.drawText(mExampleString,
-                paddingLeft + (contentWidth - mTextWidth) / 2,
-                paddingTop + (contentHeight + mTextHeight) / 2,
-                mTextPaint);
-
-        // Draw the example drawable on top of the text.
-        if (mExampleDrawable != null) {
-            mExampleDrawable.setBounds(paddingLeft, paddingTop,
-                    paddingLeft + contentWidth, paddingTop + contentHeight);
-            mExampleDrawable.draw(canvas);
-        }*/
     }
 
     /**

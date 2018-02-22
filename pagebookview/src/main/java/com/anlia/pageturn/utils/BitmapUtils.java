@@ -56,6 +56,8 @@ public class BitmapUtils {
      * @return
      */
     public static Bitmap changeBitmapSize(Bitmap bitmap, int newW, int newH) {
+        if (bitmap == null)
+            return bitmap;
         int oldW = bitmap.getWidth();
         int oldH = bitmap.getHeight();
         // 计算缩放比例

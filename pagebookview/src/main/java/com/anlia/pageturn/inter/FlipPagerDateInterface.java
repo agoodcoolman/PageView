@@ -21,4 +21,18 @@ public interface FlipPagerDateInterface {
     public void defaultPage(String path);
 
     public boolean addPage(String pagePath);
+
+    /**
+     * 自加1
+     * @return
+     */
+    public int pulsing();
+
+    /**
+     * 自减1
+     * @return
+     */
+    public int minusing();
+
+
 }
