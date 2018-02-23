@@ -1,11 +1,14 @@
 package com.anlia.pageturn.utils;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
+import android.view.Display;
+import android.view.WindowManager;
 
 /**
  * Created by anlia on 2017/12/11.
@@ -76,7 +79,7 @@ public class BitmapUtils {
      * @param absolutePath
      * @return
      */
-    public static Bitmap adjustFromFile2Bitmap(String absolutePath) {
+    public static Bitmap adjustFromFile2Bitmap(String absolutePath, Context context) {
         BitmapFactory.Options opt = new BitmapFactory.Options();
         // 这个isjustdecodebounds很重要
         opt.inJustDecodeBounds = true;
@@ -88,13 +91,13 @@ public class BitmapUtils {
 
         opt.inSampleSize = 2;
         // 获取屏的宽度和高度
-       /* WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = windowManager.getDefaultDisplay();
         int screenWidth = display.getWidth();
         int screenHeight = display.getHeight();
         opt.inScaled = false;
         // isSampleSize是表示对图片的缩放程度，比如值为2图片的宽度和高度都变为以前的1/2
-        opt.inSampleSize = 2;
+        opt.inSampleSize = 10;
         // 根据屏的大小和图片大小计算出缩放比例
         if (picWidth > picHeight) {
             if (picWidth > screenWidth)
@@ -104,7 +107,7 @@ public class BitmapUtils {
 
                 opt.inSampleSize = picHeight / screenHeight;
         }
-*/
+
         // 这次再真正地生成一个有像素的，经过缩放了的bitmap
         opt.inJustDecodeBounds = false;
 

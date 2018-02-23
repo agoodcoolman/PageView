@@ -12,8 +12,6 @@ import android.graphics.Region;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Trace;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.util.LruCache;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -22,7 +20,6 @@ import android.widget.Scroller;
 import com.anlia.pageturn.DateCenter;
 import com.anlia.pageturn.bean.MyPoint;
 import com.anlia.pageturn.inter.BookPageCallable;
-import com.anlia.pageturn.utils.BitmapUtils;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -98,7 +95,7 @@ public class BookPageView extends View {
 
     private void init(Context context, @Nullable AttributeSet attrs){
 
-        dateCenter = new DateCenter();
+        dateCenter = new DateCenter(getContext());
 
         defaultWidth = 600;
         defaultHeight = 1000;
@@ -944,7 +941,7 @@ public class BookPageView extends View {
     private void drawPathCContent(Canvas canvas, Path pathA){
 
         // 细分值横竖各200个网格
-        int SUB_WIDTH = 200, SUB_HEIGHT = 200;
+        int SUB_WIDTH = 30, SUB_HEIGHT = 30;
 
         canvas.save();
         canvas.clipPath(pathA);
@@ -962,8 +959,6 @@ public class BookPageView extends View {
 
         float[] pts = new float[]{f.x, f.y};
         mMatrix.mapPoints(pts);
-
-
         mMatrix.postTranslate(a.x - pts[0],a.y- pts[1]);
 
 
@@ -973,7 +968,7 @@ public class BookPageView extends View {
 
         float[] vets = new float[(SUB_WIDTH + 1) * (SUB_HEIGHT + 1) * 2];
         float fx, fy;
-        int index = 0, offset = 10;
+        int index = 0, offset = 50;
         double adLength = Math.hypot(a.x - d.x, a.y - d.y);
         double aiLength = Math.hypot(a.x - i.x, a.y - i.y);
 

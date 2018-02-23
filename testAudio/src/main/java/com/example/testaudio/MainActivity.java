@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.StrictMode;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -77,6 +78,23 @@ public class MainActivity extends Activity implements OnClickListener, OnChecked
         initView();
         loadView();
         new X();
+
+        // 严格模式
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                .detectCustomSlowCalls() //API等级11，使用StrictMode.noteSlowCode
+                .detectDiskReads()
+                .detectDiskWrites()
+                .detectNetwork()   // or .detectAll() for all detectable problems
+                .penaltyDialog() //弹出违规提示对话框
+                .penaltyLog() //在Logcat 中打印违规异常信息
+                .penaltyFlashScreen() //API等级11
+                .build());
+        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                .detectLeakedSqlLiteObjects()
+                .detectLeakedClosableObjects() //API等级11
+                .penaltyLog()
+                .penaltyDeath()
+                .build());
     }
 
     public void draw(View view) {
